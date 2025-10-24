@@ -1,0 +1,379 @@
+:root {
+  --ios-background: #f2f2f7;
+  --ios-secondary-background: #ffffff;
+  --ios-tertiary-background: #f2f2f7;
+  --ios-label: #000000;
+  --ios-secondary-label: #8e8e93;
+  --ios-tertiary-label: #c4c4c6;
+  --ios-system-blue: #007aff;
+  --ios-system-green: #34c759;
+  --ios-system-red: #ff3b30;
+  --ios-system-gray: #8e8e93;
+  --ios-system-gray2: #aeaeb2;
+  --ios-system-gray3: #c7c7cc;
+  --ios-system-gray4: #d1d1d6;
+  --ios-system-gray5: #e5e5ea;
+  --ios-system-gray6: #f2f2f7;
+  --ios-border-radius: 18px;
+  --ios-small-border-radius: 12px;
+  --ios-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ios-heavy-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --header-padding-vertical: 6px;
+  --input-container-padding-vertical: 6px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  width: 375px;
+  height: 600px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  background-color: var(--ios-background);
+  color: var(--ios-label);
+  overflow: hidden;
+  font-size: 16px;
+  line-height: 1.4;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+#header {
+  background-color: var(--ios-secondary-background);
+  padding: var(--header-padding-vertical) 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 0.5px solid var(--ios-system-gray5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+#header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--ios-system-gray5), transparent);
+}
+
+h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ios-label);
+  margin: 0;
+}
+
+.nav-btn {
+  background: none;
+  border: 1px solid var(--ios-system-gray4);
+  border-radius: 16px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--ios-system-blue);
+  transition: all 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  flex-shrink: 0;
+}
+
+.nav-btn:hover {
+  background-color: var(--ios-system-gray5);
+  transform: scale(1.05);
+}
+
+.nav-btn:active {
+  background-color: var(--ios-system-gray4);
+  transform: scale(0.95);
+}
+
+#chatContainer, #settingsContainer {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background-color: var(--ios-background);
+  scroll-behavior: smooth;
+}
+
+.container-hidden {
+  display: none !important;
+}
+
+.container-visible {
+  display: flex !important;
+}
+
+#chatContainer::-webkit-scrollbar,
+#settingsContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+#chatContainer::-webkit-scrollbar-track,
+#settingsContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chatContainer::-webkit-scrollbar-thumb,
+#settingsContainer::-webkit-scrollbar-thumb {
+  background-color: var(--ios-system-gray3);
+  border-radius: 2px;
+}
+
+#chatContainer::-webkit-scrollbar-thumb:hover,
+#settingsContainer::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ios-system-gray2);
+}
+
+.message {
+  max-width: 85%;
+  animation: messageAppear 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-origin: center;
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.user-message {
+  align-self: flex-end;
+}
+
+.ai-message {
+  align-self: flex-start;
+}
+
+.message-content {
+  padding: 6px 12px;
+  border-radius: var(--ios-border-radius);
+  font-size: 14px;
+  line-height: 1.4;
+  box-shadow: var(--ios-shadow);
+  position: relative;
+  overflow: hidden;
+  word-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  margin-top: 2px;
+}
+
+.user-message .message-content {
+  background: linear-gradient(135deg, var(--ios-system-blue), #0a84ff);
+  color: white;
+  border-bottom-right-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+  text-align: right;
+}
+
+.ai-message .message-content {
+  background-color: var(--ios-secondary-background);
+  color: var(--ios-label);
+  border-bottom-left-radius: 6px;
+  border: 0.5px solid var(--ios-system-gray5);
+  text-align: left;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ios-secondary-label);
+  -webkit-font-smoothing: antialiased;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 0.5px solid var(--ios-system-gray4);
+  border-radius: var(--ios-small-border-radius);
+  font-size: 14px;
+  background-color: var(--ios-tertiary-background);
+  color: var(--ios-label);
+  transition: all 0.2s ease;
+  -webkit-font-smoothing: antialiased;
+  font-family: inherit;
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--ios-system-blue);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+}
+
+textarea {
+  height: 80px;
+}
+
+button {
+  background: linear-gradient(135deg, var(--ios-system-blue), #0a84ff);
+  color: white;
+  border: none;
+  border-radius: var(--ios-small-border-radius);
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  height: 32px;
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+  min-width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0066cc, #0066cc);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 122, 255, 0.3);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
+}
+
+button:disabled {
+  background: var(--ios-system-gray3);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+#saveSettingsBtn {
+  background: linear-gradient(135deg, var(--ios-system-blue), #0a84ff);
+  color: white;
+  border: none;
+  border-radius: var(--ios-border-radius);
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  margin-top: 6px;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+  width: 100%;
+}
+
+#saveSettingsBtn:hover {
+  background: linear-gradient(135deg, #0066cc, #0066cc);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
+}
+
+#saveSettingsBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+}
+
+#status {
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: var(--ios-small-border-radius);
+  margin-top: 6px;
+  font-weight: 500;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.success {
+  background-color: rgba(52, 199, 89, 0.1);
+  color: var(--ios-system-green);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+}
+
+.error {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: var(--ios-system-red);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+#inputContainer {
+  background-color: var(--ios-secondary-background);
+  padding: var(--input-container-padding-vertical) 12px;
+  border-top: 0.5px solid var(--ios-system-gray5);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+#inputContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--ios-system-gray5), transparent);
+}
+
+#userInput {
+  flex: 1;
+  height: 32px;
+  padding: 0 12px;
+  border: 0.5px solid var(--ios-system-gray4);
+  border-radius: var(--ios-border-radius);
+  font-size: 14px;
+  font-family: inherit;
+  resize: none;
+  background-color: var(--ios-tertiary-background);
+  color: var(--ios-label);
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  line-height: 32px;
+  overflow: hidden;
+}
+
+#userInput:focus {
+  border-color: var(--ios-system-blue);
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+}
+
+#inputControls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}

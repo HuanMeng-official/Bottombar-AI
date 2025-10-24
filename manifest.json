@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "Bottombar AI",
+    "version": "1.0",
+    "description": "适用于Microsoft Edge移动版的浏览器扩展",
+    "permissions": [
+      "activeTab",
+      "storage"
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_title": "点击打开弹窗"
+    },
+    "icons": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
