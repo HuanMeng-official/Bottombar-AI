@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Bottombar AI</title>
   <link rel="stylesheet" href="popup.css">
+  <script src="lib/marked.umd.js"></script>
 </head>
 <body>
   <div id="header">
@@ -19,20 +20,20 @@
   <!-- 设置界面 -->
   <div id="settingsContainer" class="container-hidden">
     <div class="form-group">
-      <label for="apiEndpoint">API 端点:</label>
-      <input type="text" id="apiEndpoint" placeholder="https://api.example.com/v1/chat/completions">
+      <label for="apiEndpoint">API 端点</label>
+      <input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions">
     </div>
     <div class="form-group">
-      <label for="apiKey">API Key:</label>
+      <label for="apiKey">API Key</label>
       <input type="password" id="apiKey">
     </div>
     <div class="form-group">
-      <label for="model">模型:</label>
+      <label for="model">模型</label>
       <input type="text" id="model" placeholder="gpt-3.5-turbo">
     </div>
     <div class="form-group">
-      <label for="temperature">温度 (0.0 - 2.0):</label>
-      <input type="number" id="temperature" min="0" max="2" step="0.01" value="0.7">
+      <label for="temperature">温度</label>
+      <input type="number" id="temperature" min="0" max="2" step="0.01" value="0.5">
     </div>
     <div class="form-group">
       <label for="systemPrompt">系统提示词:</label>

@@ -178,7 +178,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const contentDiv = document.createElement('div');
         contentDiv.classList.add('message-content');
-        contentDiv.textContent = content;
+
+        if (sender === 'ai' && typeof marked !== 'undefined') {
+            contentDiv.innerHTML = marked.parse(content);
+        } else {
+            contentDiv.textContent = content;
+        }
 
         messageDiv.appendChild(contentDiv);
         chatContainer.appendChild(messageDiv);
