@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         chatContainer.classList.remove('container-hidden');
         chatBtn.style.display = 'none';
         settingsBtn.style.display = 'inline-block';
-        document.getElementById('mainTitle').textContent = 'AI 对话助手';
+        document.getElementById('mainTitle').textContent = 'Bottombar AI';
     });
 
     sendBtn.addEventListener('click', sendMessage);
@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 apiEndpoint: items.apiEndpoint || '',
                 apiKey: items.apiKey || '',
                 model: items.model || 'gpt-3.5-turbo',
-                temperature: items.temperature !== undefined ? items.temperature : 0.7,
-                systemPrompt: items.systemPrompt || '你是一个有用的助手。'
+                temperature: items.temperature !== undefined ? items.temperature : 0.5,
+                systemPrompt: items.systemPrompt || 'You are a helpful assistant.'
             };
             chatHistory = [
                 { role: 'system', content: settings.systemPrompt }
