@@ -1,9 +1,11 @@
 let chatHistory = [];
 let settings = {};
+let currentStreamingMessage = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const userInput = document.getElementById('userInput');
     const sendBtn = document.getElementById('sendBtn');
+    const stopBtn = document.getElementById('stopBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     const chatBtn = document.getElementById('chatBtn');
     const chatContainer = document.getElementById('chatContainer');
@@ -11,10 +13,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusDiv = document.getElementById('status');
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
+    let currentReader = null;
+
     loadSettings();
     restoreOptions();
 
-    settingsBtn.addEventListener('click', function() {
+    settingsBtn.addEventListener('click', function () {
         chatContainer.classList.add('container-hidden');
         chatContainer.classList.remove('container-visible');
         settingsContainer.classList.add('container-visible');
@@ -24,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('mainTitle').textContent = '设置';
     });
 
-    chatBtn.addEventListener('click', function() {
+    chatBtn.addEventListener('click', function () {
         settingsContainer.classList.add('container-hidden');
         settingsContainer.classList.remove('container-visible');
         chatContainer.classList.add('container-visible');
@@ -35,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     sendBtn.addEventListener('click', sendMessage);
-    userInput.addEventListener('keypress', function(e) {
+    userInput.addEventListener('keypress', function (e) {
         if (e.key === 'Enter') {
             sendMessage();
         }
@@ -43,14 +47,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     saveSettingsBtn.addEventListener('click', saveOptions);
 
+    stopBtn.addEventListener('click', stopStreaming);
+
     function loadSettings() {
         chrome.storage.sync.get([
-            'apiEndpoint', 
-            'apiKey', 
-            'model', 
-            'temperature', 
+            'apiEndpoint',
+            'apiKey',
+            'model',
+            'temperature',
             'systemPrompt'
-        ], function(items) {
+        ], function (items) {
             settings = {
                 apiEndpoint: items.apiEndpoint || '',
                 apiKey: items.apiKey || '',
@@ -66,12 +72,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function restoreOptions() {
         chrome.storage.sync.get([
-            'apiEndpoint', 
-            'apiKey', 
-            'model', 
-            'temperature', 
+            'apiEndpoint',
+            'apiKey',
+            'model',
+            'temperature',
             'systemPrompt'
-        ], function(items) {
+        ], function (items) {
             document.getElementById('apiEndpoint').value = items.apiEndpoint || 'https://api.example.com/v1/chat/completions';
             document.getElementById('apiKey').value = items.apiKey || '';
             document.getElementById('model').value = items.model || 'gpt-3.5-turbo';
@@ -98,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
             model: model,
             temperature: temperature,
             systemPrompt: systemPrompt
-        }, function() {
+        }, function () {
             showStatus('设置已保存！', 'success');
             loadSettings();
             if (chatHistory.length > 0 && chatHistory[0].role === 'system') {
@@ -119,6 +125,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
+    function stopStreaming() {
+        if (currentReader) {
+            currentReader.cancel();
+            currentReader = null;
+        }
+
+        if (currentStreamingMessage) {
+            currentStreamingMessage = null;
+        }
+
+        userInput.disabled = false;
+        sendBtn.disabled = false;
+        sendBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'none';
+        statusDiv.textContent = '已停止生成';
+        statusDiv.className = 'error';
+
+        setTimeout(() => {
+            statusDiv.textContent = '';
+        }, 2000);
+    }
+
     async function sendMessage() {
         const message = userInput.value.trim();
         if (!message) return;
@@ -133,10 +161,17 @@ document.addEventListener('DOMContentLoaded', function() {
         addMessageToUI(message, 'user');
 
         userInput.value = '';
+        userInput.disabled = true;
+        sendBtn.disabled = true;
+        sendBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
         statusDiv.textContent = 'AI 正在思考...';
         statusDiv.className = 'loading';
 
         try {
+            const streamingMessage = createStreamingMessage();
+            currentStreamingMessage = streamingMessage;
+
             const response = await fetch(settings.apiEndpoint, {
                 method: 'POST',
                 headers: {
@@ -147,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     model: settings.model,
                     messages: chatHistory,
                     temperature: settings.temperature,
-                    stream: false
+                    stream: true
                 })
             });
 
@@ -155,21 +190,87 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error(`API 请求失败: ${response.status} ${response.statusText}`);
             }
 
-            const data = await response.json();
-            if (data.choices && data.choices.length > 0) {
-                const aiMessage = data.choices[0].message.content;
-                chatHistory.push({ role: 'assistant', content: aiMessage });
-                addMessageToUI(aiMessage, 'ai');
-            } else {
-                throw new Error('API 响应格式不正确或没有返回消息。');
+            const reader = response.body.getReader();
+            currentReader = reader;
+            const decoder = new TextDecoder();
+            let fullMessage = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine || trimmedLine === 'data: [DONE]') continue;
+
+                    if (trimmedLine.startsWith('data: ')) {
+                        try {
+                            const jsonStr = trimmedLine.substring(6);
+                            const data = JSON.parse(jsonStr);
+
+                            if (data.choices && data.choices[0] && data.choices[0].delta) {
+                                const content = data.choices[0].delta.content;
+                                if (content) {
+                                    fullMessage += content;
+                                    updateStreamingMessage(streamingMessage, fullMessage);
+                                }
+                            }
+                        } catch (e) {
+                        }
+                    }
+                }
             }
+
+            chatHistory.push({ role: 'assistant', content: fullMessage });
+            currentStreamingMessage = null;
+
         } catch (error) {
             console.error('获取 AI 回复时出错:', error);
             statusDiv.textContent = `错误: ${error.message}`;
             statusDiv.className = 'error';
+
+            if (currentStreamingMessage) {
+                currentStreamingMessage.remove();
+                currentStreamingMessage = null;
+            }
         } finally {
+            userInput.disabled = false;
+            sendBtn.disabled = false;
+            sendBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
             statusDiv.textContent = '';
+            currentReader = null;
         }
+    }
+
+    function createStreamingMessage() {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', 'ai-message', 'streaming-message');
+
+        const contentDiv = document.createElement('div');
+        contentDiv.classList.add('message-content', 'streaming-content');
+
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        return messageDiv;
+    }
+
+    function updateStreamingMessage(streamingMessage, content) {
+        const contentDiv = streamingMessage.querySelector('.streaming-content');
+        if (!contentDiv) return;
+
+        if (typeof marked !== 'undefined') {
+            contentDiv.innerHTML = marked.parse(content);
+        } else {
+            contentDiv.textContent = content;
+        }
+
+        chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
     function addMessageToUI(content, sender) {

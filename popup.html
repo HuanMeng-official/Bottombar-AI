@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Bottombar AI</title>
   <link rel="stylesheet" href="popup.css">
   <script src="lib/marked.umd.js"></script>
 </head>
+
 <body>
   <div id="header">
     <h1 id="mainTitle">Bottombar AI</h1>
@@ -40,7 +42,7 @@
       <textarea id="systemPrompt" placeholder="你是一个有用的助手。"></textarea>
     </div>
     <div id="saveBtnContainer">
-        <button id="saveSettingsBtn">保存设置</button>
+      <button id="saveSettingsBtn">保存设置</button>
     </div>
     <div id="status"></div>
   </div>
@@ -48,11 +50,13 @@
   <!-- 聊天输入框 -->
   <div id="inputContainer">
     <div id="inputControls">
-        <input type="text" id="userInput" placeholder="输入消息...">
-        <button id="sendBtn">发送</button>
+      <input type="text" id="userInput" placeholder="输入消息...">
+      <button id="sendBtn">发送</button>
+      <button id="stopBtn" style="display: none;">停止</button>
     </div>
   </div>
 
   <script src="popup.js"></script>
 </body>
+
 </html>
